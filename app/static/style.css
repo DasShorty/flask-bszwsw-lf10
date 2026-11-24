@@ -1,0 +1,31 @@
+body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    color: #222;
+    background: #fafafa;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+nav a { text-decoration: none; color: #0a58ca; }
+nav a:hover { text-decoration: underline; }
+
+main {
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #ddd; }
+
+form { display: grid; gap: .75rem; max-width: 360px; }
+label { display: grid; gap: .25rem; }
+input { padding: .5rem; font: inherit; }
+button { padding: .6rem; font: inherit; cursor: pointer; }

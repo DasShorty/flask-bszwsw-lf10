@@ -1,0 +1,12 @@
+name: flask
+services:
+    mariadb:
+        container_name: mariadb
+        environment:
+            - MARIADB_ROOT_PASSWORD=rootpw
+            - MARIADB_DATABASE=myapp
+            - MARIADB_USER=myapp
+            - MARIADB_PASSWORD=myapppw
+        ports:
+            - 3306:3306
+        image: mariadb:11
