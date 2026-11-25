@@ -11,9 +11,7 @@ def create_app(config_class=Config):
 
     from . import models  # make sure models are registered for migrations
 
-    from .routes.main import bp as main_bp
-    from .routes.users import bp as users_bp
-    app.register_blueprint(main_bp)
-    app.register_blueprint(users_bp)
+    from .routes.mixing import mixing_bp
+    app.register_blueprint(mixing_bp)
 
     return app

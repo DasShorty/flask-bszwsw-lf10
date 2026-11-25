@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Letzter Messwert – Mischanlage{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Aktueller Zustand</h1>
+        {% if entry %}
+            <span class="badge text-bg-success">
+    Stand: {{ entry.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}
+  </span>
+        {% endif %}
+    </div>
+
+    {% if entry %}
+        <div class="row g-3 g-md-4">
+
+            {# Temperatur #}
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center py-4">
+                        <div class="text-body-secondary text-uppercase small mb-2">Temperatur</div>
+                        <div class="display-4 fw-semibold">
+                            {{ '%.1f'|format(entry.temperature) if entry.temperature is not none else '–' }}
+                            <span class="fs-4 text-body-secondary">°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Luftfeuchtigkeit #}
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center py-4">
+                        <div class="text-body-secondary text-uppercase small mb-2">Luftfeuchtigkeit</div>
+                        <div class="display-4 fw-semibold">
+                            {{ '%.1f'|format(entry.humidity) if entry.humidity is not none else '–' }}
+                            <span class="fs-4 text-body-secondary">%</span>
+                        </div>
+                        {% if entry.humidity is not none %}
+                            <div class="progress mt-3" style="height: .6rem;" role="progressbar"
+                                 aria-valuenow="{{ entry.humidity }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-info" style="width: {{ entry.humidity }}%"></div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Füllstand #}
+            {% set fl = entry.fill_level %}
+            {% set fl_color = 'danger' if fl is not none and fl < 20 else ('warning' if fl is not none and fl < 40 else 'success') %}
+            <div class="col-12 col-xl-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body text-center py-4">
+                        <div class="text-body-secondary text-uppercase small mb-2">Füllstand</div>
+                        <div class="display-4 fw-semibold text-{{ fl_color }}">
+                            {{ '%.1f'|format(fl) if fl is not none else '–' }}
+                            <span class="fs-4 text-body-secondary">%</span>
+                        </div>
+                        {% if fl is not none %}
+                            <div class="progress mt-3" style="height: .6rem;" role="progressbar"
+                                 aria-valuenow="{{ fl }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-{{ fl_color }}" style="width: {{ fl }}%"></div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+            <a href="{{ url_for('mixing.get_entry', entry_id=entry.id) }}" class="btn btn-outline-secondary">
+                Eintrag #{{ entry.id }} ansehen
+            </a>
+            <a href="{{ url_for('mixing.list_entries') }}" class="btn btn-primary">Alle Messwerte</a>
+        </div>
+
+        {# Seite alle 10 Sekunden neu laden #}
+        <script>setTimeout(() => location.reload(), 10000);</script>
+
+    {% else %}
+        {# ===== Leerzustand ===== #}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="display-1 mb-3">📭</div>
+                <h2 class="h4">Noch keine Messwerte</h2>
+                <p class="text-body-secondary mb-4">
+                    Sobald die Mischanlage Daten liefert, erscheinen sie hier automatisch.
+                </p>
+                <a href="{{ url_for('mixing.latest_entry') }}" class="btn btn-primary">Erneut prüfen</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

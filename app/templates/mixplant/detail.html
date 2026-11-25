@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Eintrag {{ entry.id }}{% endblock %}
+
+{% block content %}
+    <h1 class="h4 h3-md mb-1">{% block heading %}Eintrag #{{ entry.id }}{% endblock %}</h1>
+    <p class="text-body-secondary mb-3 mb-md-4">{{ entry.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</p>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-body-secondary">Temperatur</div>
+                    <div class="display-6">
+                        {{ '%.2f'|format(entry.temperature) ~ ' °C' if entry.temperature is not none else '–' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-body-secondary">Luftfeuchtigkeit</div>
+                    <div class="display-6">
+                        {{ '%.2f'|format(entry.humidity) ~ ' %' if entry.humidity is not none else '–' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-12 col-lg-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="text-body-secondary">Füllstand</div>
+                    <div class="display-6">
+                        {{ '%.2f'|format(entry.fill_level) ~ ' %' if entry.fill_level is not none else '–' }}
+                    </div>
+                    {% if entry.fill_level is not none %}
+                        <div class="progress mt-2" role="progressbar"
+                             aria-valuenow="{{ entry.fill_level }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: {{ entry.fill_level }}%"></div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{{ url_for('mixing.list_entries') }}" class="btn btn-outline-secondary w-100 w-sm-auto">
+        ← Zur Übersicht
+    </a>
+{% endblock %}

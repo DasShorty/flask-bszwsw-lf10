@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Messwerte – Mischanlage{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Messwerte</h1>
+        <button class="btn btn-outline-primary btn-sm d-md-none" type="button"
+                data-bs-toggle="collapse" data-bs-target="#filter"
+                aria-expanded="false" aria-controls="filter">
+            Filter
+        </button>
+    </div>
+
+    {# Auf Smartphones zugeklappt, ab md immer sichtbar #}
+    <div class="collapse d-md-block" id="filter">
+        <form method="get" class="card card-body mb-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label for="von" class="form-label">Von</label>
+                    <input type="datetime-local" class="form-control" id="von" name="von" value="{{ von }}">
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label for="bis" class="form-label">Bis</label>
+                    <input type="datetime-local" class="form-control" id="bis" name="bis" value="{{ bis }}">
+                </div>
+                <div class="col-12 col-sm-6 col-lg-2">
+                    <label for="order" class="form-label">Sortierung</label>
+                    <select class="form-select" id="order" name="order">
+                        <option value="desc" {{ 'selected' if order == 'desc' }}>Neueste zuerst</option>
+                        <option value="asc"  {{ 'selected' if order == 'asc' }}>Älteste zuerst</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Filtern</button>
+                    <a href="{{ url_for('mixing.list_entries') }}" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <p class="text-body-secondary small">{{ total }} Einträge</p>
+
+    {# ===== Smartphone: Karten ===== #}
+    <div class="d-md-none">
+        {% for e in entries %}
+            <a href="{{ url_for('mixing.get_entry', entry_id=e.id) }}"
+               class="card mb-2 text-decoration-none text-reset">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">#{{ e.id }}</span>
+                        <span class="text-body-secondary small">{{ e.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</span>
+                    </div>
+                    <div class="row text-center g-0">
+                        <div class="col-4">
+                            <div class="text-body-secondary small">Temp.</div>
+                            <div>{{ '%.1f °C'|format(e.temperature) if e.temperature is not none else '–' }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-body-secondary small">Feuchte</div>
+                            <div>{{ '%.1f %%'|format(e.humidity) if e.humidity is not none else '–' }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-body-secondary small">Füllstand</div>
+                            <div>{{ '%.1f %%'|format(e.fill_level) if e.fill_level is not none else '–' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% else %}
+            <div class="text-center text-body-secondary py-4">Keine Einträge gefunden.</div>
+        {% endfor %}
+    </div>
+
+    {# ===== Tablet/Desktop: Tabelle ===== #}
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Zeitpunkt</th>
+                <th class="text-end">Temperatur (°C)</th>
+                <th class="text-end">Luftfeuchtigkeit (%)</th>
+                <th class="text-end">Füllstand (%)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for e in entries %}
+                <tr>
+                    <td><a href="{{ url_for('mixing.get_entry', entry_id=e.id) }}">{{ e.id }}</a></td>
+                    <td class="text-nowrap">{{ e.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td class="text-end">{{ '%.2f'|format(e.temperature) if e.temperature is not none else '–' }}</td>
+                    <td class="text-end">{{ '%.2f'|format(e.humidity) if e.humidity is not none else '–' }}</td>
+                    <td class="text-end">{{ '%.2f'|format(e.fill_level) if e.fill_level is not none else '–' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-body-secondary py-4">Keine Einträge gefunden.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Seitennavigation">
+        <ul class="pagination pagination-sm pagination-md-normal justify-content-center flex-wrap">
+            <li class="page-item {{ 'disabled' if page <= 1 }}">
+                <a class="page-link"
+                   href="{{ url_for('mixing.list_entries', page=page-1, von=von or None, bis=bis or None, order=order) }}">
+                    ← <span class="d-none d-sm-inline">Zurück</span>
+                </a>
+            </li>
+            <li class="page-item disabled">
+      <span class="page-link">
+        <span class="d-none d-sm-inline">Seite </span>{{ page }} / {{ pages }}
+      </span>
+            </li>
+            <li class="page-item {{ 'disabled' if page >= pages }}">
+                <a class="page-link"
+                   href="
+                           {{ url_for('mixing.list_entries', page=page+1, von=von or None, bis=bis or None, order=order) }}">
+                    <span class="d-none d-sm-inline">Weiter</span> →
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
